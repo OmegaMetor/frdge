@@ -1,0 +1,38 @@
+import sys;
+import iofile;
+
+if(sys::envVarExists("JPIZZA_DATA_DIR") == false){
+    iofile::makeDirs(sys::home() + "/.jpizza");
+    iofile::setCWD(sys::home() + "/.jpizza");
+}else{
+    iofile::makeDirs(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza");
+    iofile::setCWD(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza");
+}
+
+var packageDirectory => "./modules";
+var extensionDirectory => "./extensions";
+var repoDirectory => "./frdge_repos";
+
+iofile::makeDirs(packageDirectory);
+iofile::makeDirs(extensionDirectory);
+iofile::makeDirs(repoDirectory);
+
+
+fn getPackage<package>{
+    var fileName => package + ".json";
+    for(folder <- iofile::listDirContents(repoDirectory)){
+        println(folder);
+    }
+}
+
+
+fn install<args>{
+    let argsSize => size(args);
+    if(argsSize < 3){
+        return println("Please specify one or multiple packages to install.");
+    };
+    var packages => sublist(args, 2, argsSize);
+    for(package <- packages){
+        getPackage(package);
+    }
+}

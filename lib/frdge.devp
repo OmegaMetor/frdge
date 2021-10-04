@@ -1,0 +1,24 @@
+#func main;
+
+bake help => "Usage: frdge (action) [arguments]";
+
+fn main<args> {
+    if(size(args) == 1){
+        return println(help);
+    } else {
+        if(args[1] == "install"){
+            import installPackage;
+            installPackage::install(args);
+        } elif(args[1] == "remove"){
+            import removePackage;
+            removePackage::remove(args);
+        } elif(args[1] == "repo"){
+            throw "NotImplemented";
+        } elif(args[1] == "help"){
+            println(help + "\nActions:\tUsage:\ninstall\t\tInstalles a package given its name\nremove\t\tRemoves a package given its name\nrepo\t\tBase command for repository managment\n\nRepository Subcommands:\nadd\t\tAdds a repo given its git url\nremove\t\tRemoves a repo given its name\n");
+        } else {
+            return println(help);
+        }
+    }
+
+}
