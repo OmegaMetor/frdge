@@ -1,0 +1,23 @@
+{
+    "Name":"packageName",
+    "Assets":[
+        {
+            "AssetName":"name",
+            "AssetType":"module",
+            "AssetDownload":"https://github.com/Lemon-Chad/jpizza/releases",
+            "AssetDescription":"Unused"
+        }
+    ],
+    "Dependencies":[
+        {
+            "DependencyName":"Name",
+            "DependencyRepo":"Unused, will be used in future if dependency is not found in already existing repo."
+        }
+    ],
+    "Information":{
+        "Author":"UNUSED",
+        "Copyright":"UNUSED",
+        "Description":"UNUSED",
+        "Version":"UNUSED"
+    }
+}

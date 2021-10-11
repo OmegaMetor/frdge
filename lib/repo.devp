@@ -1,0 +1,55 @@
+import sys;
+import iofile;
+fn add<repos>{
+    if(sys::envVarExists("JPIZZA_DATA_DIR") == false){
+        iofile::makeDirs(sys::home() + "/.jpizza/");
+        iofile::setCWD(sys::home() + "/.jpizza/");
+    }else{
+        iofile::makeDirs(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza/");
+        iofile::setCWD(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza/");
+    }
+    var repoDir => iofile::getCWD() + "/frdge_repos";
+    iofile::makeDirs(repoDir);
+    for(repo<-repos){
+        var command => `cd ${repoDir} && git clone ${repo}`;
+        sys::execute(command);
+    }
+    println("Attempted to add repository. Please check to make sure it worked.");
+}
+fn remove<repos>{
+    if(sys::envVarExists("JPIZZA_DATA_DIR") == false){
+        iofile::makeDirs(sys::home() + "/.jpizza/");
+        iofile::setCWD(sys::home() + "/.jpizza/");
+    }else{
+        iofile::makeDirs(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza/");
+        iofile::setCWD(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza/");
+    }
+    var repoDir => iofile::getCWD() + "/frdge_repos";
+    iofile::makeDirs(repoDir);
+    for(repo<-repos){
+        var repoExists => iofile::isFileDirectory(repoDir + "/" + repo);
+        if(repoExists){
+            var command => `cd ${repoDir} && rm -rf ${repo}`;
+            sys::execute(command);
+        }else{
+            println("Unable to find repo to remove.");
+            sys::exit(1);
+        }
+        println("Attempted to remove packages. If you are on windows, you will need to manually delete the folders, this command will not work.");
+    }
+}
+fn exec<args>{
+    var argsSize => size(args);
+    if (argsSize < 4){
+        println("Usage: \nfrdge repo remove [Repository Name]\nfrdge repo add [Repository URL]");
+        sys::exit(1);
+    }
+    if(args[2]=="add"){
+        add(sublist(args, 3, argsSize));
+    }elif(args[2]=="remove"){
+        remove(sublist(args, 3, argsSize));
+    }else{
+        println("Usage: \nfrdge repo remove [Repository Name]\nfrdge repo add [Repository URL]");
+        sys::exit(1);
+    }
+}

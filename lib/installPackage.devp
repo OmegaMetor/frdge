@@ -1,27 +1,85 @@
 import sys;
 import iofile;
+import json;
+import httpx;
 
 if(sys::envVarExists("JPIZZA_DATA_DIR") == false){
-    iofile::makeDirs(sys::home() + "/.jpizza");
-    iofile::setCWD(sys::home() + "/.jpizza");
+    iofile::makeDirs(sys::home() + "/.jpizza/");
+    iofile::setCWD(sys::home() + "/.jpizza/");
 }else{
-    iofile::makeDirs(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza");
-    iofile::setCWD(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza");
+    iofile::makeDirs(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza/");
+    iofile::setCWD(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza/");
 }
 
-var packageDirectory => "./modules";
-var extensionDirectory => "./extensions";
-var repoDirectory => "./frdge_repos";
+var packageDirectory => "modules";
+var extensionDirectory => "extensions";
+var repoDirectory => "frdge_repos";
 
 iofile::makeDirs(packageDirectory);
 iofile::makeDirs(extensionDirectory);
 iofile::makeDirs(repoDirectory);
 
+fn loadConfig<package, packages>{
+    var folders => iofile::listDirContents(repoDirectory);
+    for(folder<-folders){
+        if(iofile::isFileDirectory(repoDirectory+"/"+folder)){
+        var files => iofile::listDirContents(repoDirectory+"/"+folder);
+        for(file<-files){
+            if(file == package+".recipe"){
+                var contents => iofile::readFile(repoDirectory+"/"+folder+"/"+package+".recipe");
+                var contents => json::loads(contents);
+                return contents;
+            }
+        }
+    }}
+    println("Package "+package+" not found.");
+    sys::exit(1);
+}
 
-fn getPackage<package>{
-    var fileName => package + ".json";
-    for(folder <- iofile::listDirContents(repoDirectory)){
-        println(folder);
+fn getPackages<packages>{
+    var configs => [];
+    var packageListSize => size(packages);
+    var i => 0;
+    <>Packages is the list of packages
+    <>size is the size of packages
+    <>i is the iterator
+    while(i < packageListSize){
+        <>Get package data here
+        var config => loadConfig(packages[i], packages);
+        var dependencies => [];
+        i += 1;
+        for(dependency<-config."Dependencies"){
+            if(!contains(packages, dependency."DependencyName")){
+                append(packages, dependency."DependencyName");
+            }
+        }
+        append(configs, config);
+        packageListSize => size(packages);
+        }
+    return configs;
+}
+
+fn downloadPackages<packages>{
+    for(package<-packages){
+        for(asset<-package."Assets"){
+            println(`Downloading ${asset."AssetName"} from package ${package."Name"}`);
+            var assetPath;
+            var assetName => asset."AssetName";
+            var assetType => asset."AssetType";
+            if(assetType=="module"){
+                assetPath => packageDirectory + "/" + assetName;
+                var assetFilePath => assetPath + "/" + assetName+".devp";
+            }else{
+                assetPath => extensionDirectory + "/" + assetName;
+                var assetFilePath => assetPath + "/" + assetName+".jar";
+            }
+
+            <>Download asset .... not sure weather to use curl or iofile. Gonna try iofile. If that dosent work, windows users can suck it up and downlaod curl.
+            var assetDownloadURL => asset."AssetDownload";
+            iofile::makeDirs(assetPath);
+            var downloadCommand => `curl --output "${iofile::getCWD()+assetFilePath}" ${assetDownloadURL}`;
+            sys::execute(downloadCommand);
+        }
     }
 }
 
@@ -32,7 +90,6 @@ fn install<args>{
         return println("Please specify one or multiple packages to install.");
     };
     var packages => sublist(args, 2, argsSize);
-    for(package <- packages){
-        getPackage(package);
-    }
+    var configs => getPackages(packages);
+    downloadPackages(configs);
 }

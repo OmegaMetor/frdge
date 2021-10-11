@@ -10,12 +10,12 @@ fn main<args> {
             import installPackage;
             installPackage::install(args);
         } elif(args[1] == "remove"){
-            import removePackage;
-            removePackage::remove(args);
-        } elif(args[1] == "repo"){
             throw "NotImplemented";
+        } elif(args[1] == "repo"){
+            import repo;
+            repo::exec(args);
         } elif(args[1] == "help"){
-            println(help + "\nActions:\tUsage:\ninstall\t\tInstalles a package given its name\nremove\t\tRemoves a package given its name\nrepo\t\tBase command for repository managment\n\nRepository Subcommands:\nadd\t\tAdds a repo given its git url\nremove\t\tRemoves a repo given its name\n");
+            println(help + "\nActions:\tUsage:\ninstall\t\tInstalles a package given its name\nremove\t\tRemoves a *asset* given its name\nrepo\t\tBase command for repository managment\n\nRepository Subcommands:\nadd\t\tAdds a repo given its git url\nremove\t\tRemoves a repo given its name\nupdate\t\tUpdates all repositories\n");
         } else {
             return println(help);
         }
