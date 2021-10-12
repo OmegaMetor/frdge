@@ -29,13 +29,11 @@ fn remove<repos>{
     for(repo<-repos){
         var repoExists => iofile::isFileDirectory(repoDir + "/" + repo);
         if(repoExists){
-            var command => `cd ${repoDir} && rm -rf ${repo}`;
-            sys::execute(command);
+            iofile::deleteFile(repoDir + "/" + repo);
         }else{
             println("Unable to find repo to remove.");
             sys::exit(1);
         }
-        println("Attempted to remove packages. If you are on windows, you will need to manually delete the folders, this command will not work.");
     }
 }
 fn exec<args>{
