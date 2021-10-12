@@ -1,3 +1,54 @@
-fn remove<args> {
-    println(args[2]);
-};
+import sys;
+import iofile;
+import json;
+if(sys::envVarExists("JPIZZA_DATA_DIR") == false){
+    iofile::makeDirs(sys::home() + "/.jpizza/");
+    iofile::setCWD(sys::home() + "/.jpizza/");
+}else{
+    iofile::makeDirs(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza/");
+    iofile::setCWD(sys::getEnvVar("JPIZZA_DATA_DIR") + "/.jpizza/");
+}
+var packageDirectory => "modules";
+var extensionDirectory => "extensions";
+var repoDirectory => "frdge_repos";
+
+fn loadConfig<package, packages>{
+    var folders => iofile::listDirContents(repoDirectory);
+    for(folder<-folders){
+        if(iofile::isFileDirectory(repoDirectory+"/"+folder)){
+        var files => iofile::listDirContents(repoDirectory+"/"+folder);
+        for(file<-files){
+            if(file == package+".recipe"){
+                var contents => iofile::readFile(repoDirectory+"/"+folder+"/"+package+".recipe");
+                var contents => json::loads(contents);
+                return contents;
+            }
+        }
+    }}
+    println("Package "+package+" not found.");
+    sys::exit(1);
+}
+
+
+fn deletePackage<args> {
+    var argsSize => size(args);
+    if(argsSize<3){
+        println("Please specify packages to remove.");
+        sys::exit(1);
+    }
+    var packages => sublist(args, 2, argsSize);
+    for(package<-packages){
+        var config => loadConfig(package);
+        for(asset<-config."Assets"){
+            var assetPath;
+            var assetName => asset."AssetName";
+            var assetType => asset."AssetType";
+            if(assetType=="module"){
+                assetPath => packageDirectory + "/" + assetName;
+            }else{
+                assetPath => extensionDirectory + "/" + assetName;
+            }
+            iofile::deleteFile(assetPath);
+        }
+    }
+}

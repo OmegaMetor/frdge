@@ -10,7 +10,8 @@ fn main<args> {
             import installPackage;
             installPackage::install(args);
         } elif(args[1] == "remove"){
-            throw "NotImplemented";
+            import removePackage;
+            removePackage::deletePackage(args);
         } elif(args[1] == "repo"){
             import repo;
             repo::exec(args);
