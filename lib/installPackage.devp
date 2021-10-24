@@ -77,7 +77,7 @@ fn downloadPackages<packages>{
             <>Download asset .... not sure weather to use curl or iofile. Gonna try iofile. If that dosent work, windows users can suck it up and downlaod curl.
             var assetDownloadURL => asset."AssetDownload";
             iofile::makeDirs(assetPath);
-            var downloadCommand => `curl -L "${assetDownloadURL}" > "${iofile::getCWD()+assetFilePath}"`;
+            var downloadCommand => `curl -o "${iofile::getCWD()+assetFilePath}" -L "${assetDownloadURL}"`;
             sys::execute((? strLower(split(sys::os(), " ")[0]) == "windows": "cmd /C" $_: "") + downloadCommand);
         }
     }
