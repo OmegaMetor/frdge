@@ -12,7 +12,7 @@ fn add<repos>{
     iofile::makeDirs(repoDir);
     for(repo<-repos){
         var command => `cd ${repoDir} && git clone ${repo}`;
-        sys::execute(command);
+        sys::execute((? strLower(split(sys::os(), " ")[0]) == "windows": "cmd /C" $_: "") + command);
     }
     println("Attempted to add repository. Please check to make sure it worked.");
 }
